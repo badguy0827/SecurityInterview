@@ -9,7 +9,12 @@
 ## 字节跳动
     SQL注入
         1.SQL注入的分类
+            答:按照参数类型分为1.字符型 2.数字型注入
+               按照注入位置分为1.get 2.post
+               按照sql语法分为1.union注入 2.boolean注入 3.报错注入 4.时间注入 5.堆叠注入 6.宽字节注入
+               参考地址:https://www.cnblogs.com/-chenxs/p/11614129.html
         2.手写mysql手注payload（union、报错、延时）
+            
         3.如何区分后端数据库
         4.oracle/sqlserver注入
         5.不同注入场景下注入
