@@ -78,3 +78,80 @@
     11.使用MSF进行后渗透,经常使用到哪些模块
     12.主机不出网的情况下怎么上线cs
     13.安卓的四大组件是什么
+## 安恒
+安恒的面试题
+内网渗透，ntlm和lm有什么区别，linux权限维持（低权限），不出网机器怎么上线cs
+ - ntlm加密过程:将明文转换为十六进制，经过Unicode转换后，再调用MD4加密
+ - LM加密过程:
+  1.将小写的[a-z]转换为大写 => a
+  2.(a)转换为大写后将其hex编码 => b
+  2.(b)hex编码后长度不为48bit，将其填充到112bit => c
+  3.(c)将114bit编码的结果分成两组56bit => d
+  4.(d)将两组56bit进行转换为二进制 => e
+  (d)如果这两组不够56bit，转换为二进制后在左边填充足够的0到达56bit
+
+  5.(e)将比特流按照7比特一组，分出8组，末尾加0 => f (2个8组的bit流)
+  6.(f)将这8组bit流转换为16进制（每4位bit=1位十六进制）=> g
+  7.(g)将两组的十六进制进行二进制的hex编码（返回由十六进制字符串 hexstr 表示的二进制数据（binascii.hex_a2b））=> h
+  8.(h)将两组二进制hex编码的字符串，当作key对魔术字符串KGS!@#$%进行des编码，然后拼接两者得到LM hash
+  
+ 不出网机器怎么上线cs:
+  单机器只有web出网:http流量转发，毒刺
+  两台机器(一台web出网，一台在内网):netsh防火墙转发流量到web出网的机器，smb beacon
+ 
+ 低权Linux维权:
+  - webshell、内存马
+  - vim配置
+  - python配置
+  - bash profile
+  - 计划任务
+  
+白银票据和黄金票据的区别
+ - 黄金票据:任意协议都可认证使用
+ - 白银票据:指定协议才能使用
+
+kerberos认证过程
+kerberos认证某台机器:
+ 第一步:
+ Client->Server Client向DC发出请求，请求包含:时间戳、client域用户的个人信息(Client info)、密钥的信息(KDC info)
+ Client<-Server AS认证服务去AD中心查询client的域用户是否为合法用户，确认为合法用户后AS返回Client一张TGT（还有一个以client域用户密码加密的key这个密码也在TGT中（sesion key）），TGT上有Client info等信息，TGT由krbtgt hash加密
+ 
+ 第二步:
+ Client->Server Client得到TGT后，再次向DC发起请求通过445端口使用session key加密自己域用户的信息和TGT
+ Client<-Server DC得到TGT后会使用krbtgt hash解密TGT，得到session key和域用户info，然后将域用户info和数据库里面的比对，如果相同认证通过，DC返回session key加密过的server session key和ticket(服务票据) （这个票据用server hash加密，其中包含了server session key和域用户的信息）
+ 
+ 第三步:
+ Client->Server Client拿到Server session server key和ticket发送给对应要验证的机器，对应的机器用自己的密码解密ticket，得到server session key和域用户信息，在用请求来的域用户信息和自己机器存放的信息进行比对，如果正确就认证通过
+ 
+ 
+查询域命令
+ net time /domain
+ net user /domain
+查询域控机器命令
+ nltest /dclist:<domain>
+ net group "Domain Controllers" /domain
+
+常见的横向手法
+ wmic、schtasks、powershell、psexec等
+给你一个内网的环境怎么去渗透
+ 1.先确定网段大小
+ 2.扫描存活的机器
+ 3.判断windows和Linux的机器有多少台，是否有域
+ 4.针对对应的服务和web进行收集
+ 5.对服务展开针对性的漏洞利用（例如：redis未授权、MS17），和web进行攻击
+ 6.windows是否有域
+ 7.当前机器如果是windows拿到hash或明文的情况下尝试横向
+ 8.对Linux开了ssh的机器尝试爆破密码
+还有就是只有一个webshell不出网怎么上线cs
+ http流量转发
+有没有接触过应急响应
+ 直接说有，然后瞎说即可
+安了卡巴斯基的机器低权限怎么去横向/权限维持
+ 【没想到】
+免杀
+ 改资源文件
+ 加壳
+ 修改重新编译
+ 特征码修改
+ 花指令
+ shellcode加密
